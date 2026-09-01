@@ -8,7 +8,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "v18";
+  var APP_VERSION = "v19";
   var MAX_PLAYERS = 12, SESSION_MIN = 90, MIN_ROUND = 15, HARD_FLOOR = 13, IDEAL_ROUND = 30;
   var STORE_KEY = 'courtRotation.v1';
 
@@ -269,7 +269,7 @@
     var v = el.nameInput.value.trim();
     el.setupWarn.textContent = '';
     if (!v) return;
-    if (players.length >= MAX_PLAYERS) { el.setupWarn.textContent = MAX_PLAYERS + ' players is the maximum for a 90-minute session.'; return; }
+    if (players.length >= MAX_PLAYERS) { el.setupWarn.textContent = MAX_PLAYERS + ' players is the maximum.'; return; }
     if (nameTaken(players, v)) { el.setupWarn.textContent = v + ' is already on the list \u2014 add a surname or initial.'; return; }
     players.push(v); el.nameInput.value = ''; renderSetup(); el.nameInput.focus();
   }
@@ -318,10 +318,14 @@
     return t;
   }
 
+  var MAX_SESSION_MIN = 6 * 60;   // sanity cap: nobody plays longer than this
+
   function availableMinutes() {
     var fin = parseFinishTime();
     if (!fin) return null;
-    return Math.floor((fin - Date.now()) / 60000);
+    var mins = Math.floor((fin - Date.now()) / 60000);
+    if (mins > MAX_SESSION_MIN) return -1;   // finish time is almost certainly wrong
+    return mins;
   }
 
   function renderPlan() {
@@ -362,7 +366,7 @@
     }
 
     var avail = availableMinutes();
-    var p = (players.length>=4 && selectedCourts.length && avail) ?
+    var p = (players.length>=4 && selectedCourts.length && avail && avail > 0) ?
             makePlan(players.length, selectedCourts, avail) : null;
     currentPlan = p;
     if (!p) { el.planBox.classList.add('hidden'); return; }
@@ -428,14 +432,15 @@
     var avail = availableMinutes();
     var ready = (mode === "manual")
       ? (players.length>=4 && selectedCourts.length>0)
-      : (players.length>=4 && selectedCourts.length>0 && avail!==null && avail>=HARD_FLOOR);
+      : (players.length>=4 && selectedCourts.length>0 && avail!==null && avail>0 && avail>=HARD_FLOOR);
     el.startBtn.disabled = !ready;
     el.hintLine.style.display = ready ? 'none' : 'block';
     el.hintLine.textContent = players.length<4 ? 'Need at least 4 players to start.'
       : (selectedCourts.length===0 ? 'Pick at least one available court.'
       : (mode==="manual" ? ''
       : (avail===null ? 'Set the time you need to finish by.'
-      : 'Only ' + avail + ' minutes left \u2014 not enough for a round.')));
+      : (avail < 0 ? 'That finish time is more than six hours away \u2014 check it is right.'
+      : 'Only ' + avail + ' minutes left \u2014 not enough for a round.'))));
   }
 
   // ---------- start / resume ----------
