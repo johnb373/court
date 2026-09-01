@@ -2,7 +2,7 @@
 // Strategy: serve from cache immediately (so the app opens with no signal),
 // then quietly fetch a fresh copy in the background for next time.
 
-var CACHE = 'court-rotation-v2';
+var CACHE = 'court-rotation-v3';
 var CORE = [
   './',
   './index.html',
@@ -50,11 +50,19 @@ self.addEventListener('fetch', function (e) {
         // cache:'reload' bypasses the browser's own HTTP cache, otherwise the
         // background check can be answered with the same stale copy forever.
         var fresh = fetch(req, { cache: 'reload' }).then(function (res) {
-          if (res && res.status === 200) cache.put(req, res.clone());
+          if (res && res.status === 200) {
+            return cache.put(req, res.clone()).then(function () { return res; });
+          }
           return res;
         }).catch(function () {
           return null;
         });
+
+        // Keep the worker alive until the background refresh has finished,
+        // otherwise it can be shut down before the new copy is stored and the
+        // app never moves off the old version.
+        e.waitUntil(fresh);
+
         // Serve the cached copy straight away if we have one.
         return cached || fresh.then(function (res) {
           if (res) return res;
