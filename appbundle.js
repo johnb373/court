@@ -8,7 +8,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "v17";
+  var APP_VERSION = "v18";
   var MAX_PLAYERS = 12, SESSION_MIN = 90, MIN_ROUND = 15, HARD_FLOOR = 13, IDEAL_ROUND = 30;
   var STORE_KEY = 'courtRotation.v1';
 
@@ -841,6 +841,14 @@
 
   // ---------- help screen ----------
   var HELP_HTML =
+    '<h3>Keep it on your phone</h3>' +
+    '<p>Do this once and it opens like any other app, with no address bar \u2014 and it ' +
+    'then works even with no signal at the courts.</p>' +
+    '<div class="step"><b>Android</b><br/>Open in Chrome, tap the &#8942; menu (top right), ' +
+    'then <b>Install</b>. If it offers both Install and Create shortcut, choose <b>Install</b>.</div>' +
+    '<div class="step"><b>iPhone / iPad</b><br/>Open in <b>Safari</b> (not Chrome), tap the ' +
+    'Share button, scroll down and tap <b>Add to Home Screen</b>.</div>' +
+
     '<h3>What this does</h3>' +
     '<p>Type in whoever turns up, tap which courts are free, and it works out ' +
     'who plays with whom, on which court, round by round. It keeps things fair ' +
@@ -879,18 +887,10 @@
     '<p>Tap <b>Manage players</b>. Rounds already played stay exactly as they were, and ' +
     'the remaining rounds are rebuilt around the change, still keeping sit-outs fair.</p>' +
 
-    '<h3>Keeping it on your phone</h3>' +
-    '<p>Add it to your home screen and it opens like any other app, with no address bar. ' +
-    'You only need to do this once.</p>' +
-    '<div class="step"><b>Android</b><br/>Open in Chrome, tap the &#8942; menu (top right), ' +
-    'then <b>Install</b>. If it offers both Install and Create shortcut, choose Install.</div>' +
-    '<div class="step"><b>iPhone / iPad</b><br/>Open in <b>Safari</b> (not Chrome), tap the ' +
-    'Share button, scroll down and tap <b>Add to Home Screen</b>.</div>' +
-
     '<h3>Signal at the courts</h3>' +
-    '<p>Once you have opened it a single time with a connection, it stores itself on your ' +
-    'phone and works from then on with no signal at all. When you are online it quietly ' +
-    'updates itself in the background.</p>' +
+    '<p>Once opened a single time with a connection, it stores itself on your phone and ' +
+    'works from then on with no signal at all. When you are online it quietly updates ' +
+    'itself in the background.</p>' +
 
     '<h3>If anything goes wrong</h3>' +
     '<ul>' +
