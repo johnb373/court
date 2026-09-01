@@ -1,8 +1,8 @@
 {
   "name": "Court Rotation",
   "short_name": "Court Rotation",
-  "id": "/local/court/",
-  "start_url": "./index.html",
+  "id": "/court/",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
