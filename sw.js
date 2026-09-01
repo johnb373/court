@@ -2,7 +2,7 @@
 // Strategy: serve from cache immediately (so the app opens with no signal),
 // then quietly fetch a fresh copy in the background for next time.
 
-var CACHE = 'court-rotation-v1';
+var CACHE = 'court-rotation-v2';
 var CORE = [
   './',
   './index.html',
@@ -15,7 +15,11 @@ var CORE = [
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE).then(function (c) {
-      return c.addAll(CORE);
+      return Promise.all(CORE.map(function (u) {
+        return fetch(u, { cache: 'reload' }).then(function (r) {
+          if (r && r.status === 200) return c.put(u, r);
+        }).catch(function () {});
+      }));
     }).then(function () {
       return self.skipWaiting();
     })
@@ -43,7 +47,9 @@ self.addEventListener('fetch', function (e) {
     caches.open(CACHE).then(function (cache) {
       return cache.match(req, { ignoreSearch: true }).then(function (cached) {
         // Always try the network in the background to pick up updates.
-        var fresh = fetch(req).then(function (res) {
+        // cache:'reload' bypasses the browser's own HTTP cache, otherwise the
+        // background check can be answered with the same stale copy forever.
+        var fresh = fetch(req, { cache: 'reload' }).then(function (res) {
           if (res && res.status === 200) cache.put(req, res.clone());
           return res;
         }).catch(function () {
